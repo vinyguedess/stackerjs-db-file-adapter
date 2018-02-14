@@ -9,7 +9,7 @@ describe('AdapterTest', () =>
         LAST_INSERTED_ID, 
         ATTRIBUTES = {
             'name': 'Vinicius Guedes',
-            'birthday': new Date('1992-12-30'),
+            'birthday': new Date('1992-12-30 08:25:01'),
             'active': true
         };
     
