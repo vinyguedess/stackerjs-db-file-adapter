@@ -2,12 +2,15 @@ import * as utils from './utils';
 
 
 let CONN = {
-    'database': process.cwd() + '/storage/database'
+    'database': process.cwd() + '/storage/database',
+    'options': {
+        
+    }
 };
 
 
-exports.connect = (database) =>
-    CONN.database = database;
+exports.connect = (database, options) =>
+    CONN = Object.assign({}, { database, options });
 
 
 exports.create = query =>
