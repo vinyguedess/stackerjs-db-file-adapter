@@ -40,13 +40,52 @@ exports.parseCriteria = criteria =>
             Object.keys(criteria).forEach(key => {
                 if (!response)
                     return;
-                    
-                if (item[key] !== criteria[key])
-                    response = false;
+
+                if (typeof criteria[key] === 'object')
+                    return Object.keys(criteria[key]).forEach(compareAs => {
+                        if (!response)
+                            return;
+
+                        response = exports.compare(item[key], compareAs.toLowerCase(), criteria[key][compareAs]);
+                    });
+
+                exports.compare(item[key], 'eq', criteria[key]);
             });
 
             return response;
         }
 
-    return item => item;
+    return item => true;
+}
+
+
+exports.compare = (field, compareType, value) =>
+{
+    if (value instanceof Date) {
+        field = new Date(field).getTime();
+        value = value.getTime();
+    }
+
+    if ((compareType === 'eq' || compareType === '=') && field === value)
+        return true;
+
+    if ((compareType === 'neq' || compareType === '<>') && field !== value)
+        return true;
+
+    if ((compareType === 'gt' || compareType === '>') && field > value)
+        return true;
+
+    if ((compareType === 'gte' || compareType === '>=') && field >= value)
+        return true;
+
+    if ((compareType === 'lt' || compareType === '<') && field < value)
+        return true;
+
+    if ((compareType === 'lte' || compareType === '<=') && field <= value)
+        return true;
+
+    if ((compareType === 'like') && field.indexOf(value.replace(/\%/g, '')))
+        return true;
+
+    return false;
 }

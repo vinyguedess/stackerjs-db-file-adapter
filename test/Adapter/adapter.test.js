@@ -63,11 +63,28 @@ describe('AdapterTest', () =>
 
     describe('Finding rows from Collection', () => 
     {
-        it('Should find a row by ID', done => 
+        it('Should find only one register', done => 
         {
-            adapter.findById({ 'collection': COLLECTION, 'criteria': LAST_INSERTED_ID })
+            adapter.findOne({ 'collection': COLLECTION, 'criteria': { 'id': LAST_INSERTED_ID } })
                 .then(attributes => expect(attributes.id).to.be.equal(LAST_INSERTED_ID))
                 .then(() => done());
+        });
+
+        it('Should find a bunch of registers filtered', done => 
+        {
+            adapter.findAll({ 
+                'collection': COLLECTION, 
+                'criteria': {
+                    'birthday': { 
+                        'gte': new Date('1992-12-30')
+                    }
+                } 
+            })
+            .then(results => {
+                expect(results).to.be.an('Array');
+                expect(results.length).to.be.equal(1);
+            })
+            .then(() => done());
         });
     });
 

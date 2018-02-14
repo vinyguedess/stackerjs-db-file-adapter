@@ -96,15 +96,21 @@ exports.update = query =>
         });
 
 
-exports.findById = query => 
+exports.findOne = query => 
     utils.loadCollection(CONN.database, query.collection)
-        .then(collection => collection.data.filter(item => item.id === query.criteria))
+        .then(collection => collection.data.filter(utils.parseCriteria(query.criteria)))
         .then(([ result ]) => {
             if (!result)
                 return null;
 
             return result;
         });
+
+
+exports.findAll = query =>
+    utils.loadCollection(CONN.database, query.collection)
+        .then(collection => collection.data.filter(utils.parseCriteria(query.criteria)))
+        .then(results => results);
 
 
 exports.drop = query =>
