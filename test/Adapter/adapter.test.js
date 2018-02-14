@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import * as adapter from './../../lib/adapter';
 
 
+console.log(adapter);
 describe('AdapterTest', () => 
 {
 
@@ -52,7 +53,10 @@ describe('AdapterTest', () =>
                 ]
             })
             .then(response => {
-                console.log(response);
+                expect(response).to.have.property('lastInsertedId');
+                expect(response).to.have.property('affectedRows');
+                expect(response).to.have.property('changedRows');
+                expect(response.affectedRows).to.be.equal(3);
             })
             .then(() => done());
         });

@@ -26,7 +26,6 @@ exports.create = query =>
 exports.insert = query =>
     utils.loadCollection(CONN.database, query.collection)
         .then(collection => {
-            console.log(this);
             let { attributes } = query;
             if (!attributes)
                 throw new Error('Attributes sent in the wrong way');
@@ -46,7 +45,27 @@ exports.insert = query =>
 
 
 exports.insertMultiple = query =>
-    "OK";
+    utils.loadCollection(CONN.database, query.collection)
+        .then(collection => {
+            let { attributes } = query;
+            if (!attributes)
+                throw new Error('Attributes sent in the wrong way');
+            
+            let lastInsertedId = null;
+            attributes.forEach(item => {
+                lastInsertedId = item['id'] = utils.generateId();
+                collection.data.push(item);
+            });
+
+            return utils.persistCollection(CONN.database, collection)
+                .then(response => {
+                    return {
+                        'lastInsertedId': lastInsertedId,
+                        'affectedRows': query.attributes.length,
+                        'changedRows': query.attributes.length
+                    }
+                }); 
+        });
 
 
 exports.update = query =>
