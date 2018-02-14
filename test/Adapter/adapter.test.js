@@ -86,6 +86,18 @@ describe('AdapterTest', () =>
             })
             .then(() => done());
         });
+
+        it('Should count registers', done => 
+        {
+            adapter.count({
+                'collection': COLLECTION,
+                'criteria': {
+                    'active': { 'neq': false }
+                }
+            })
+            .then(result => expect(result).to.be.equal(3))
+            .then(() => done());
+        });
     });
 
     describe('Updating rows from Collection', () => 

@@ -113,5 +113,11 @@ exports.findAll = query =>
         .then(results => results);
 
 
+exports.count = query =>
+    utils.loadCollection(CONN.database, query.collection)
+        .then(collection => collection.data.filter(utils.parseCriteria(query.criteria)))
+        .then(results => results.length);
+
+
 exports.drop = query =>
     utils.deleteCollection(CONN.database, query.collection);
