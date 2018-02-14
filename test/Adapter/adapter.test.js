@@ -4,44 +4,58 @@ import * as adapter from './../../lib/adapter';
 
 describe('AdapterTest', () => 
 {
+
+    let COLLECTION = 'contacts',
+        LAST_INSERTED_ID, 
+        ATTRIBUTES = {
+            'name': 'Vinicius Guedes',
+            'birthday': new Date('1992-12-30'),
+            'active': true
+        };
     
-    describe('Create table', () => 
+    describe('Creating Collection', () => 
     {
-        it('Should create database without trouble', done => 
+        it('Should create a collection', done => 
         {
-            adapter.create({ 'collection': 'contacts' })
+            adapter.create({ 'collection': COLLECTION })
                 .then(response => expect(response).to.be.true)
                 .then(() => done());
         });
     });
 
-    describe('Inserting', () => 
+    describe('Inserting rows into Collection', () => 
     {
         it('Should insert a register', done => 
         {
-            
             adapter.insert({
-                'collection': 'contacts',
-                'attributes': {
-                    'name': 'Vinicius Guedes',
-                    'birthday': new Date('1992-12-30'),
-                    'active': true
-                }
+                'collection': COLLECTION,
+                'attributes': ATTRIBUTES
             })
             .then(response => {
                 expect(response).to.have.property('lastInsertedId');
                 expect(response).to.have.property('affectedRows');
                 expect(response).to.have.property('changedRows');
+                LAST_INSERTED_ID = response.lastInsertedId;
             })
             .then(() => done());
         });
     });
 
-    describe('Drop table', () => 
+    describe('Finding rows from Collection', () => 
     {
-        it('Should drop table without problem', done => 
+        it('Should find a row by ID', done => 
         {
-            adapter.drop({ 'collection': 'contacts' })
+            adapter.findById({ 'collection': COLLECTION, 'criteria': LAST_INSERTED_ID })
+                .then(attributes => expect(attributes.id).to.be.equal(LAST_INSERTED_ID))
+                .then(() => done());
+        });
+    });
+
+    describe('Dropping Collection', () => 
+    {
+        it('Should drop a collection', done => 
+        {
+            adapter.drop({ 'collection': COLLECTION })
                 .then(response => expect(response).to.be.true)
                 .then(() => done());
         });
