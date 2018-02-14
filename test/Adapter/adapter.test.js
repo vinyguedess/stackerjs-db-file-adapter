@@ -10,6 +10,7 @@ describe('AdapterTest', () =>
         ATTRIBUTES = {
             'name': 'Vinicius Guedes',
             'birthday': new Date('1992-12-30 08:25:01'),
+            'age': 25,
             'active': true
         };
     before(() => adapter.connect(process.cwd()));
@@ -46,9 +47,9 @@ describe('AdapterTest', () =>
             adapter.insertMultiple({
                 'collection': COLLECTION,
                 'attributes': [
-                    { 'name': 'Rafael Ali', 'active': true },
-                    { 'name': 'Joabe Santos', 'active': true },
-                    { 'name': 'Monique', 'active': false }
+                    { 'name': 'Rafael Ali', 'age': 22, 'active': true },
+                    { 'name': 'Joabe Santos', 'age': 28, 'active': true },
+                    { 'name': 'Monique', 'age': 21, 'active': false }
                 ]
             })
             .then(response => {
@@ -61,12 +62,22 @@ describe('AdapterTest', () =>
         });
     });
 
-    describe('Finding rows from Collection', () => 
+    describe('Finding and Counting rows from Collection', () => 
     {
         it('Should find only one register', done => 
         {
             adapter.findOne({ 'collection': COLLECTION, 'criteria': { 'id': LAST_INSERTED_ID } })
                 .then(attributes => expect(attributes.id).to.be.equal(LAST_INSERTED_ID))
+                .then(() => done());
+        });
+
+        it('Should find a bunch of registers', done => 
+        {
+            adapter.findAll({ 'collection': COLLECTION })
+                .then(results => {
+                    expect(results).to.be.an("array");
+                    expect(results.length).to.be.equal(4);
+                })
                 .then(() => done());
         });
 
@@ -119,6 +130,26 @@ describe('AdapterTest', () =>
                 expect(response).to.have.property('affectedRows');
                 expect(response).to.have.property('changedRows');
                 expect(response.lastInsertedId).to.be.null;
+            })
+            .then(() => done());
+        });
+    });
+
+    describe('Deleting rows from Collection', () => 
+    {
+        it('Should delete a register', done => 
+        {
+            adapter.delete({
+                'collection': COLLECTION,
+                'criteria': {
+                    'age': { 'lt': 25 }
+                }
+            })
+            .then(results => {
+                expect(results).to.have.property('affectedRows');
+                expect(results).to.have.property('changedRows');
+                expect(results).to.have.property('lastInsertedId');
+                expect(results.affectedRows).to.be.equal(2);
             })
             .then(() => done());
         });

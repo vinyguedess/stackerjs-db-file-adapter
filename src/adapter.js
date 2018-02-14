@@ -119,5 +119,24 @@ exports.count = query =>
         .then(results => results.length);
 
 
+exports.delete = query =>
+    utils.loadCollection(CONN.database, query.collection)
+        .then(collection => {
+            let result = { 'affectedRows': 0, 'changedRows': 0, 'lastInsertedId': null };
+            collection.data = collection.data.filter(item => {
+                let filter = utils.parseCriteria(query.criteria);
+                if (!filter(item)) {
+                    result.affectedRows++;
+                    return false;
+                }
+                
+                return true;
+            });
+
+            return utils.persistCollection(CONN.database, collection)
+                .then(() => result);
+        });
+
+
 exports.drop = query =>
     utils.deleteCollection(CONN.database, query.collection);
