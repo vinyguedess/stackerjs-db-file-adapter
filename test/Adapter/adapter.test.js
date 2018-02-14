@@ -165,4 +165,6 @@ describe('AdapterTest', () =>
         });
     });
 
+    after(() => adapter.disconnect());
+
 });

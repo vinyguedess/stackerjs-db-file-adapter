@@ -2,18 +2,25 @@ import * as utils from './utils';
 
 
 let CONN = {
-    'database': process.cwd() + '/storage/database',
+    'database': null,
+    'isConnected': false,
     'options': {
         
     }
 };
 
 
-exports.connect = (database, options) =>
-    CONN = Object.assign({}, { database, options });
+exports.connect = (database, options = {}) =>
+    CONN = Object.assign({}, { 'isConnected': true, database, options });
+
+
+exports.disconnect = () =>
+    CONN = { 'database': null, 'isConnected': false, 'options': {} }
 
 
 exports.create = query =>
+    !exports.isConnected() ? Promise.reject(new Error('Database is not connected')) 
+    :
     utils.hasCollection(query.name)
         .then(response => {
             if (response)
@@ -27,6 +34,8 @@ exports.create = query =>
 
 
 exports.insert = query =>
+    !exports.isConnected() ? Promise.reject(new Error('Database is not connected')) 
+    :
     utils.loadCollection(CONN.database, query.collection)
         .then(collection => {
             let { attributes } = query;
@@ -48,6 +57,8 @@ exports.insert = query =>
 
 
 exports.insertMultiple = query =>
+    !exports.isConnected() ? Promise.reject(new Error('Database is not connected')) 
+    :
     utils.loadCollection(CONN.database, query.collection)
         .then(collection => {
             let { attributes } = query;
@@ -72,6 +83,8 @@ exports.insertMultiple = query =>
 
 
 exports.update = query =>
+    !exports.isConnected() ? Promise.reject(new Error('Database is not connected')) 
+    :
     utils.loadCollection(CONN.database, query.collection)
         .then(collection => {
             let { attributes } = query;
@@ -97,6 +110,8 @@ exports.update = query =>
 
 
 exports.findOne = query => 
+    !exports.isConnected() ? Promise.reject(new Error('Database is not connected')) 
+    :
     utils.loadCollection(CONN.database, query.collection)
         .then(collection => collection.data.filter(utils.parseCriteria(query.criteria)))
         .then(([ result ]) => {
@@ -108,18 +123,24 @@ exports.findOne = query =>
 
 
 exports.findAll = query =>
+    !exports.isConnected() ? Promise.reject(new Error('Database is not connected')) 
+    :
     utils.loadCollection(CONN.database, query.collection)
         .then(collection => collection.data.filter(utils.parseCriteria(query.criteria)))
         .then(results => results);
 
 
 exports.count = query =>
+    !exports.isConnected() ? Promise.reject(new Error('Database is not connected')) 
+    :
     utils.loadCollection(CONN.database, query.collection)
         .then(collection => collection.data.filter(utils.parseCriteria(query.criteria)))
         .then(results => results.length);
 
 
 exports.delete = query =>
+    !exports.isConnected() ? Promise.reject(new Error('Database is not connected')) 
+        :
     utils.loadCollection(CONN.database, query.collection)
         .then(collection => {
             let result = { 'affectedRows': 0, 'changedRows': 0, 'lastInsertedId': null };
@@ -139,4 +160,9 @@ exports.delete = query =>
 
 
 exports.drop = query =>
+    !exports.isConnected() ? Promise.reject(new Error('Database is not connected')) 
+        : 
     utils.deleteCollection(CONN.database, query.collection);
+
+
+exports.isConnected = () => CONN.isConnected;
