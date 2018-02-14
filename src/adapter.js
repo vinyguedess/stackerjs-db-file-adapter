@@ -6,6 +6,10 @@ let CONN = {
 };
 
 
+exports.connect = (database) =>
+    CONN.database = database;
+
+
 exports.create = query =>
     utils.hasCollection(query.name)
         .then(response => {
@@ -47,19 +51,20 @@ exports.update = query =>
             if (!attributes)
                 throw new Error('Attributes were not sent');
 
+            let result = { 'lastInsertedId': null, 'affectedRows': 0, 'changedRows': 0 }
             collection.data.map(item => {
-                if (utils.parseCriteria(query.criteria))
-                    return attributes;
+                if (utils.parseCriteria(query.criteria)) {
+                    result.affectedRows++;
+                    result.changedRows++;
+                    return Object.assign(item, attributes);
+                }
 
                 return item;
             });
 
             return utils.persistCollection(CONN.database, collection)
                 .then(() => {
-                    return {
-                        'id': attributes['id'],
-                        attributes
-                    }
+                    return result;
                 });
         });
 

@@ -34,5 +34,19 @@ exports.parseCriteria = criteria =>
     if (typeof criteria === 'function')
         return criteria;
 
+    if (typeof criteria === 'object')
+        return item => {
+            let response = true;
+            Object.keys(criteria).forEach(key => {
+                if (!response)
+                    return;
+                    
+                if (item[key] !== criteria[key])
+                    response = false;
+            });
+
+            return response;
+        }
+
     return item => item;
 }

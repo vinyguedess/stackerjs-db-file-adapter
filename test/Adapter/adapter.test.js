@@ -12,6 +12,7 @@ describe('AdapterTest', () =>
             'birthday': new Date('1992-12-30 08:25:01'),
             'active': true
         };
+    before(() => adapter.connect(process.cwd()));
     
     describe('Creating Collection', () => 
     {
@@ -48,6 +49,30 @@ describe('AdapterTest', () =>
             adapter.findById({ 'collection': COLLECTION, 'criteria': LAST_INSERTED_ID })
                 .then(attributes => expect(attributes.id).to.be.equal(LAST_INSERTED_ID))
                 .then(() => done());
+        });
+    });
+
+    describe('Updating rows from Collection', () => 
+    {
+        it('Should update a row', done => 
+        {
+            adapter.update({
+                'collection': COLLECTION,
+                'attributes': {
+                    'active': false,
+                    'another_data_for_testing': true
+                },
+                'criteria': {
+                    'id': LAST_INSERTED_ID
+                }
+            })
+            .then(response => {
+                expect(response).to.have.property('lastInsertedId');
+                expect(response).to.have.property('affectedRows');
+                expect(response).to.have.property('changedRows');
+                expect(response.lastInsertedId).to.be.null;
+            })
+            .then(() => done());
         });
     });
 
