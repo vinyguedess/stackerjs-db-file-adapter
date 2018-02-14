@@ -2,7 +2,6 @@ import { expect } from 'chai';
 import * as adapter from './../../lib/adapter';
 
 
-console.log(adapter);
 describe('AdapterTest', () => 
 {
 
