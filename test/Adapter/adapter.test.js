@@ -40,6 +40,22 @@ describe('AdapterTest', () =>
             })
             .then(() => done());
         });
+
+        it('Should insert multiple registers', done => 
+        {
+            adapter.insertMultiple({
+                'collection': COLLECTION,
+                'attributes': [
+                    { 'name': 'Rafael Ali', 'active': true },
+                    { 'name': 'Joabe Santos', 'active': true },
+                    { 'name': 'Monique', 'active': false }
+                ]
+            })
+            .then(response => {
+                console.log(response);
+            })
+            .then(() => done());
+        });
     });
 
     describe('Finding rows from Collection', () => 

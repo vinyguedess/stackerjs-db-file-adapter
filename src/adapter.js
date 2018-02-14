@@ -26,6 +26,7 @@ exports.create = query =>
 exports.insert = query =>
     utils.loadCollection(CONN.database, query.collection)
         .then(collection => {
+            console.log(this);
             let { attributes } = query;
             if (!attributes)
                 throw new Error('Attributes sent in the wrong way');
@@ -42,6 +43,10 @@ exports.insert = query =>
                     }
                 }); 
         });
+
+
+exports.insertMultiple = query =>
+    "OK";
 
 
 exports.update = query =>
