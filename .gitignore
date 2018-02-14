@@ -1,0 +1,10 @@
+# App files and folders
+/coverage
+/lib
+/node_modules
+/storage/database/*.json
+
+# OS files and folders
+/.idea
+/.vscode
+/nbproject
