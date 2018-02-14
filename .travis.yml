@@ -1,0 +1,18 @@
+language: node_js
+node_js:
+  - "7"
+
+before_install:
+  - npm install -g codecov istanbul
+
+install:
+  - npm install
+
+before_script:
+  - npm run build
+
+script:
+  - npm run test
+
+after_success:
+  - codecov
