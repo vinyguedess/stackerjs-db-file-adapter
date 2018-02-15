@@ -2,8 +2,19 @@
     "name": "stackerjs-db-file-adapter",
     "description": "Database manager build over OS folders and files",
     "version": "0.1.0",
+    "author": {
+        "name": "Vinicius Guedes",
+        "email": "viniciusgued@gmail.com",
+        "url": "https://vinyguedess.github.io"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/vinyguedess/stackerjs-db-file-adapter"
+    },
 
-    "dependencies": {},
+    "dependencies": {
+        "babel-polyfill": "^6.26.0"
+    },
     "devDependencies": {
         "babel-cli": "^6.26.0",
         "babel-core": "^6.26.0",
@@ -14,14 +25,20 @@
         "mocha": "^5.0.1",
         "nyc": "^11.4.1"
     },
-    
+
     "nyc": {
         "exclude": [
             "lib"
         ],
         "instrument": false,
-        "require": [ "babel-register" ],
-        "reporter": [ "lcov", "text" ],
+        "require": [
+            "babel-register",
+            "babel-polyfill"
+        ],
+        "reporter": [
+            "lcov",
+            "text"
+        ],
         "sourceMap": true
     },
     "scripts": {

@@ -24,6 +24,13 @@ describe('AdapterTest', () =>
                 .then(() => done());
         });
 
+        it('Should present error when sending invalid query object', done => 
+        {
+            adapter.create({})
+                .catch(err => expect(err.message).to.be.equal('Query object is invalid'))
+                .then(() => done());
+        });
+
         it('Should present error when trying to create a collection that already exists', done => 
         {
             adapter.create({ 'collection': COLLECTION })

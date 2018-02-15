@@ -29,6 +29,11 @@ exports.deleteCollection = (database, collection) =>
         fs.unlink(`${database}/${collection}.json`, err => 
             err ? reject(err) : resolve(true)));
 
+
+exports.isValidQuery = (query, validator = [ 'collection' ]) =>
+    validator.length === validator.filter(v => typeof query[v] !== 'undefined').length
+
+            
 exports.parseCriteria = criteria => 
 {
     if (typeof criteria === 'function')

@@ -1,3 +1,4 @@
+import 'babel-polyfill';
 import * as utils from './utils';
 
 
@@ -18,19 +19,22 @@ exports.disconnect = () =>
     CONN = { 'database': null, 'isConnected': false, 'options': {} }
 
 
-exports.create = query =>
-    !exports.isConnected() ? Promise.reject(new Error('Database is not connected')) 
-    :
-    utils.hasCollection(CONN.database, query.collection)
-        .then(response => {
-            if (response)
-                throw new Error('Collection already exists');
+exports.create = async query =>
+{
+    if (!exports.isConnected())
+        return Promise.reject(new Error('Database is not connected')) 
+
+    if (!utils.isValidQuery(query))
+        return Promise.reject(new Error('Query object is invalid'));
+    
+    if (await utils.hasCollection(CONN.database, query.collection))
+        throw new Error('Collection already exists');
                 
-            return utils.persistCollection(CONN.database, {
-                'name': query.collection,
-                'data': []
-            });
-        });
+    return utils.persistCollection(CONN.database, {
+        'name': query.collection,
+        'data': []
+    });
+}
 
 
 exports.insert = query =>
