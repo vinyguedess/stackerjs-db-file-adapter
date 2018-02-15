@@ -16,10 +16,13 @@
     },
     
     "nyc": {
+        "exclude": [
+            "lib"
+        ],
+        "instrument": false,
         "require": [ "babel-register" ],
-        "reporter": "lcov",
-        "sourceMap": false,
-        "instrument": false
+        "reporter": [ "lcov", "text" ],
+        "sourceMap": true
     },
     "scripts": {
         "build": "./node_modules/.bin/babel src -d lib",

@@ -23,6 +23,13 @@ describe('AdapterTest', () =>
                 .then(response => expect(response).to.be.true)
                 .then(() => done());
         });
+
+        it('Should present error when trying to create a collection that already exists', done => 
+        {
+            adapter.create({ 'collection': COLLECTION })
+                .catch(err => expect(err.message).to.be.equal('Collection already exists'))
+                .then(() => done());
+        });
     });
 
     describe('Inserting rows into Collection', () => 
@@ -165,6 +172,72 @@ describe('AdapterTest', () =>
         });
     });
 
-    after(() => adapter.disconnect());
+    describe('Connections Errors', () => 
+    {
+        it('Should disconnect database', () => { adapter.disconnect(); });
+
+        it('Should present error when trying to create a collection when database disconnected', done => 
+        {
+            adapter.create({ })
+                .catch(err => expect(err.message).to.be.equal('Database is not connected'))
+                .then(() => done());
+        });
+
+        it('Should present error when trying to insert into a collection when database is disconnected', done =>
+        {
+            adapter.insert({ })
+                .catch(err => expect(err.message).to.be.equal('Database is not connected'))
+                .then(() => done());
+        });
+
+        it('Should present error when trying to insert multiple rows and database is disconnected', done => 
+        {
+            adapter.insertMultiple({ })
+                .catch(err => expect(err.message).to.be.equal('Database is not connected'))
+                .then(() => done());
+        });
+
+        it('Should present error when trying to update a row from a collection when database is disconnected', done => 
+        {
+            adapter.update({ })
+                .catch(err => expect(err.message).to.be.equal('Database is not connected'))
+                .then(() => done());
+        });
+
+        it('Should present error when trying to find one row and database is disconnected', done => 
+        {
+            adapter.findOne({ })
+                .catch(err => expect(err.message).to.be.equal('Database is not connected'))
+                .then(() => done());
+        });
+
+        it('Should present error when trying to find multiple rows and database is disconnected', done => 
+        {
+            adapter.findAll({ })
+                .catch(err => expect(err.message).to.be.equal('Database is not connected'))
+                .then(() => done());
+        });
+
+        it('Should present error when trying to count number of rows and database is disconnected', done => 
+        {
+            adapter.count({ })
+                .catch(err => expect(err.message).to.be.equal('Database is not connected'))
+                .then(() => done())
+        });
+
+        it('Should present error when trying to delete data from collection and database is disconnected', done => 
+        {
+            adapter.delete({ })
+                .catch(err => expect(err.message).to.be.equal('Database is not connected'))
+                .then(() => done());
+        });
+
+        it('Should present error when trying to drop a collection and database is disconnected', done => 
+        {
+            adapter.drop({ })
+                .catch(err => expect(err.message).to.be.equal('Database is not connected'))
+                .then(() => done());
+        });
+    });
 
 });

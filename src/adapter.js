@@ -21,7 +21,7 @@ exports.disconnect = () =>
 exports.create = query =>
     !exports.isConnected() ? Promise.reject(new Error('Database is not connected')) 
     :
-    utils.hasCollection(query.name)
+    utils.hasCollection(CONN.database, query.collection)
         .then(response => {
             if (response)
                 throw new Error('Collection already exists');

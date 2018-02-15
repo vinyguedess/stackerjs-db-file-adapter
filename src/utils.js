@@ -7,7 +7,7 @@ exports.generateId = () =>
 
 exports.hasCollection = (database, table) =>
     new Promise(resolve => 
-        fs.exists(`${database}/${table}`, response => 
+        fs.exists(`${database}/${table}.json`, response => 
             resolve(response)));
 
 
