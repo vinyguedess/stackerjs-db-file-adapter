@@ -74,6 +74,13 @@ describe('AdapterTest', () =>
             })
             .then(() => done());
         });
+
+        it('Should present error when sending invalid query object', done => 
+        {
+            adapter.insert({ })
+                .catch(err => expect(err.message).to.be.equal('Query object is invalid'))
+                .then(() => done());
+        });
     });
 
     describe('Finding and Counting rows from Collection', () => 

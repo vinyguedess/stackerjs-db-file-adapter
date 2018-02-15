@@ -22,10 +22,10 @@ exports.disconnect = () =>
 exports.create = async query =>
 {
     if (!exports.isConnected())
-        return Promise.reject(new Error('Database is not connected')) 
+        throw new Error('Database is not connected');
 
     if (!utils.isValidQuery(query))
-        return Promise.reject(new Error('Query object is invalid'));
+        throw new Error('Query object is invalid');
     
     if (await utils.hasCollection(CONN.database, query.collection))
         throw new Error('Collection already exists');
@@ -37,27 +37,29 @@ exports.create = async query =>
 }
 
 
-exports.insert = query =>
-    !exports.isConnected() ? Promise.reject(new Error('Database is not connected')) 
-    :
-    utils.loadCollection(CONN.database, query.collection)
-        .then(collection => {
-            let { attributes } = query;
-            if (!attributes)
-                throw new Error('Attributes sent in the wrong way');
+exports.insert = async query =>
+{
+    if (!exports.isConnected())
+        throw new Error('Database is not connected');
 
-            attributes['id'] = utils.generateId();
-            collection.data.push(attributes);
+    if (!utils.isValidQuery(query, [ 'collection', 'attributes' ]))
+        throw new Error('Query object is invalid');
+        
+    let collection = await utils.loadCollection(CONN.database, query.collection);
+    let { attributes } = query;
 
-            return utils.persistCollection(CONN.database, collection)
-                .then(response => {
-                    return {
-                        'lastInsertedId': attributes['id'],
-                        'affectedRows': 1,
-                        'changedRows': 1
-                    }
-                }); 
-        });
+    attributes['id'] = utils.generateId();
+    collection.data.push(attributes);
+
+    return utils.persistCollection(CONN.database, collection)
+        .then(response => {
+            return {
+                'lastInsertedId': attributes['id'],
+                'affectedRows': 1,
+                'changedRows': 1
+            }
+        }); 
+}
 
 
 exports.insertMultiple = query =>
