@@ -1,4 +1,4 @@
 {
     "presets": [ "env" ],
-    "plugins": [ "istanbul" ]
+    "plugins": [ "transform-object-rest-spread" ]
 }
