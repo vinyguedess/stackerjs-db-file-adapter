@@ -11,7 +11,7 @@
         "type": "git",
         "url": "https://github.com/vinyguedess/stackerjs-db-file-adapter"
     },
-    "main": "lib/adapter.js",
+    "main": "lib/index.js",
     "dependencies": {
         "babel-polyfill": "^6.26.0",
         "lodash": "^4.17.10",
@@ -32,26 +32,16 @@
         "travis-deploy-once": "^5.0.0"
     },
     "nyc": {
-        "exclude": [
-            "config",
-            "index.js",
-            "lib",
-            "test"
-        ],
-        "require": [
-            "babel-register",
-            "babel-polyfill"
-        ],
-        "reporter": [
-            "lcov",
-            "text"
-        ]
+        "exclude": ["config", "index.js", "lib", "test"],
+        "require": ["babel-register", "babel-polyfill"],
+        "reporter": ["lcov", "text"]
     },
     "scripts": {
         "precommit": "./node_modules/.bin/lint-staged",
         "lint": "eslint src/ test/ --fix",
         "build": "babel src -d lib",
-        "test": "NODE_ENV=dev ./node_modules/.bin/nyc ./node_modules/mocha/bin/_mocha",
+        "test":
+            "NODE_ENV=dev ./node_modules/.bin/nyc ./node_modules/mocha/bin/_mocha",
         "travis-deploy-once": "travis-deploy-once",
         "semantic-release": "semantic-release"
     }
