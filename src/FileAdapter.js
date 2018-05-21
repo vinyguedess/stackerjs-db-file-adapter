@@ -89,6 +89,25 @@ export class FileAdapter
         });
     }
 
+    remove({ at, filters }) 
+    {
+        let queryResponse = { changedRows: 0, affectedRows: 0 },
+            filter = this.parseFilters(filters);
+
+        return this.acquire(at).then(collection => 
+        {
+            collection.data = collection.data.filter(item => 
+            {
+                if (!filter(item)) return true;
+
+                queryResponse.affectedRows++;
+                return false;
+            });
+
+            return this.persist(at, collection).then(() => queryResponse);
+        });
+    }
+
     drop({ at }) 
     {
         return new Promise((resolve, reject) => 
