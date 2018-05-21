@@ -1,7 +1,7 @@
 {
     "name": "stackerjs-db-file-adapter",
     "description": "Database manager build over OS folders and files",
-    "version": "0.4.0",
+    "version": "0.0.0-development",
     "author": {
         "name": "Vinicius Guedes",
         "email": "viniciusgued@gmail.com",
@@ -27,7 +27,9 @@
         "husky": "^0.14.3",
         "lint-staged": "^7.1.1",
         "mocha": "^5.0.1",
-        "nyc": "^11.4.1"
+        "nyc": "^11.4.1",
+        "semantic-release": "^15.4.3",
+        "travis-deploy-once": "^5.0.0"
     },
     "nyc": {
         "exclude": [
@@ -49,6 +51,8 @@
         "precommit": "./node_modules/.bin/lint-staged",
         "lint": "eslint src/ test/ --fix",
         "build": "babel src -d lib",
-        "test": "./node_modules/.bin/nyc ./node_modules/mocha/bin/_mocha"
+        "test": "NODE_ENV=dev ./node_modules/.bin/nyc ./node_modules/mocha/bin/_mocha",
+        "travis-deploy-once": "travis-deploy-once",
+        "semantic-release": "semantic-release"
     }
 }

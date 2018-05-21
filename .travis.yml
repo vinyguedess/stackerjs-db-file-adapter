@@ -1,18 +1,24 @@
 language: node_js
 node_js:
-  - "7"
+  - '9'
+  - '8'
+  - '6'
+cache:
+  directories:
+    - ~/.npm
+
+notifications:
+  email: false
 
 before_install:
-  - npm install -g codecov istanbul
-
-install:
-  - npm install
-
-before_script:
-  - npm run build
-
-script:
-  - npm run test
+  - echo "DB_HOST=storage/database" >> .env
+  - echo "DB_NAME=file_adapter" >> .env
+  - npm install -g istanbul babel-cli
 
 after_success:
-  - codecov
+  - npm run build
+  - npm run travis-deploy-once "npm run semantic-release"
+
+branches:
+  except:
+    - /^v\d+\.\d+\.\d+$/
