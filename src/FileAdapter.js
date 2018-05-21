@@ -17,7 +17,7 @@ export class FileAdapter
             throw new Error("Invalid Query. Missing \"type\" parameter.");
 
         if (
-            !["ADD", "GET", "CHANGE", "REMOVE", "DROP", "CREATE"].includes(query.type.toUpperCase())
+            !["ADD", "LIST", "CHANGE", "REMOVE", "DROP", "CREATE"].includes(query.type.toUpperCase())
         )
             throw new Error(`Invalid Query. There's no "${query.type}".`);
 
@@ -51,6 +51,15 @@ export class FileAdapter
                 changedRows: 0
             }));
         });
+    }
+
+    list({ at, filters, limit, offset }) 
+    {
+        return this.acquire(at).then(collection =>
+            collection.data
+                .filter(this.parseFilters(filters))
+                .filter((item, index) => !offset || index >= offset)
+                .filter((item, index) => !limit || index < limit));
     }
 
     change({ at, data, filters }) 
@@ -98,17 +107,26 @@ export class FileAdapter
         return item => 
         {
             let response = true;
-            Object.assign(filters).forEach(key => 
+            Object.keys(filters).forEach(key => 
             {
                 if (!response) return null;
 
-                // if (Array.isArray(filters[key]))
-                // {
-                // }
+                if (Array.isArray(filters[key])) 
+                {
+                    let [comp, value] = filters[key];
+                    return (response =
+                        response &&
+                        criteria[comp.toLowerCase()](item[key], value));
+                }
 
-                // if (filters[key] && typeof filters[key] === "object")
-                // {
-                // }
+                if (filters[key] && typeof filters[key] === "object")
+                    return Object.keys(filters[key]).forEach(comp =>
+                        (response =
+                                response &&
+                                criteria[comp.toLowerCase()](
+                                    item[key],
+                                    filters[key][comp]
+                                )));
 
                 response = criteria.eq(item[key], filters[key]);
             });

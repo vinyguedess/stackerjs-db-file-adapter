@@ -101,7 +101,59 @@ describe("Test/Unit/ConnectionTest", () =>
         });
     });
 
-    describe("Update", () => 
+    describe("List", () => 
+    {
+        it("Should get all data from collection without trouble", done => 
+        {
+            Connection.query({
+                type: "LIST",
+                at: "phones"
+            })
+                .then(results => 
+                {
+                    expect(results).to.be.an("Array");
+                    expect(results).to.be.lengthOf(4);
+                })
+                .finally(done);
+        });
+
+        it("Should apply some filters", done => 
+        {
+            Connection.query({
+                type: "LIST",
+                at: "phones",
+                filters: {
+                    ddi: ["neq", 54],
+                    ddd: "13",
+                    number: { like: "5555" }
+                }
+            })
+                .then(results => 
+                {
+                    expect(results).to.be.an("Array");
+                    expect(results).to.be.lengthOf(1);
+                })
+                .finally(done);
+        });
+
+        it("Should paginate results", done => 
+        {
+            Connection.query({
+                type: "LIST",
+                at: "phones",
+                limit: 2,
+                offset: 1
+            })
+                .then(results => 
+                {
+                    expect(results).to.be.an("array");
+                    expect(results).to.be.lengthOf(2);
+                })
+                .finally(done);
+        });
+    });
+
+    describe("Change", () => 
     {
         it("Should update data without filters", done => 
         {
