@@ -1,9 +1,9 @@
 import { expect } from "chai";
 import { Connection } from "../../src";
 
-
 describe("Test/Unit/ConnectionTest", () => 
 {
+    let USER_ID;
 
     describe("Validators", () => 
     {
@@ -16,7 +16,7 @@ describe("Test/Unit/ConnectionTest", () =>
                 .catch(err =>
                     expect(() => 
                     {
-                        throw err; 
+                        throw err;
                     }).to.throw(/Missing "type" parameter/))
                 .finally(done);
         });
@@ -27,10 +27,10 @@ describe("Test/Unit/ConnectionTest", () =>
                 type: "ADD",
                 data: { name: "any name" }
             })
-                .catch(err => 
+                .catch(err =>
                     expect(() => 
                     {
-                        throw err; 
+                        throw err;
                     }).to.throw(/Missing "at" parameter/))
                 .finally(done);
         });
@@ -54,12 +54,54 @@ describe("Test/Unit/ConnectionTest", () =>
                     expect(queryResponse).to.have.property("lastInsertedId");
                     expect(queryResponse).to.have.property("affectedRows");
                     expect(queryResponse).to.have.property("changedRows");
+                    USER_ID = queryResponse.lastInsertedId;
+                })
+                .finally(done);
+        });
+
+        it("Should insert multiple data into database", done => 
+        {
+            Connection.query({
+                type: "ADD",
+                at: "phones",
+                data: [
+                    {
+                        user_id: USER_ID,
+                        ddi: "55",
+                        ddd: "11",
+                        number: "912345678"
+                    },
+                    {
+                        user_id: USER_ID,
+                        ddi: "55",
+                        ddd: "13",
+                        number: "912345678"
+                    },
+                    {
+                        user_id: USER_ID,
+                        ddi: "55",
+                        ddd: "13",
+                        number: "912345555"
+                    },
+                    {
+                        user_id: USER_ID,
+                        ddi: "55",
+                        ddd: "21",
+                        number: "912345678"
+                    }
+                ]
+            })
+                .then(queryResponse => 
+                {
+                    expect(queryResponse.lastInsertedId).to.be.a("string");
+                    expect(queryResponse.affectedRows).to.be.a("number");
+                    expect(queryResponse.changedRows).to.be.a("number");
                 })
                 .finally(done);
         });
     });
 
-    describe("Update", () =>
+    describe("Update", () => 
     {
         it("Should update data without filters", done => 
         {
@@ -106,15 +148,20 @@ describe("Test/Unit/ConnectionTest", () =>
     {
         it("Should drop selected collection", done => 
         {
-            Connection.query({
-                type: "DROP",
-                at: "users"
-            })
-                .then(queryResponse => expect(queryResponse).to.be.true)
+            Promise.all([
+                Connection.query({
+                    type: "DROP",
+                    at: "users"
+                }),
+                Connection.query({
+                    type: "DROP",
+                    at: "phones"
+                })
+            ])
+                .then(queryResponse => expect(queryResponse[0]).to.be.true)
                 .then(() => done());
         });
     });
-    
-    after(() => Connection.disconnect());
 
+    after(() => Connection.disconnect());
 });
