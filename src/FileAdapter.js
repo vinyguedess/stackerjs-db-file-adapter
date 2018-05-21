@@ -70,19 +70,20 @@ export class FileAdapter
             changedRows: 0
         };
 
+        let filter = this.parseFilters(filters);
         return this.acquire(at).then(collection => 
         {
-            collection.data = collection.data
-                .filter(this.parseFilters(filters))
-                .map(row => 
-                {
-                    queryResponse.affectedRows++;
-                    let newRow = { ...row, ...data };
+            collection.data = collection.data.map(item => 
+            {
+                if (!filter(item)) return item;
 
-                    if (!_.isEqual(row, newRow)) queryResponse.changedRows++;
+                queryResponse.affectedRows++;
+                let changedItem = { ...item, ...data };
 
-                    return newRow;
-                });
+                if (!_.isEqual(item, changedItem)) queryResponse.changedRows++;
+
+                return changedItem;
+            });
 
             return this.persist(at, collection).then(() => queryResponse);
         });
