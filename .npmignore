@@ -1,0 +1,20 @@
+# App files and folders
+/.babelrc
+/.gitignore
+/.lintstagedrc
+/.releaserc
+/.travis.yml
+/.env
+/.nyc_output
+/config
+/coverage
+/node_modules
+/src
+/storage
+/test
+/yarn-error.log
+
+# OS files and folders
+/.idea
+/.vscode
+/nbproject

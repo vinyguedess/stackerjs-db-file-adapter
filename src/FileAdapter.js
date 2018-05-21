@@ -2,29 +2,29 @@ import { exists, readFile, unlink, writeFile } from "fs";
 import * as path from "path";
 import _ from "lodash";
 import uuid from "uuid/v1";
+import { QueryCriteria } from "./QueryCriteria";
 
-
-export class FileAdapter
+export class FileAdapter 
 {
-
-    constructor(host, name)
+    constructor(host, name) 
     {
         this.path = path.resolve(host, name);
     }
 
-    validateQuery(query)
+    validateQuery(query) 
     {
         if (!query.type)
             throw new Error("Invalid Query. Missing \"type\" parameter.");
 
-        if (!["ADD", "GET", "CHANGE", "REMOVE", "DROP", "CREATE"].includes(query.type.toUpperCase()))
+        if (
+            !["ADD", "LIST", "CHANGE", "REMOVE", "DROP", "CREATE"].includes(query.type.toUpperCase())
+        )
             throw new Error(`Invalid Query. There's no "${query.type}".`);
 
-        if (!query.at)
-            throw new Error("Invalid Query. Missing \"at\" parameter");
+        if (!query.at) throw new Error("Invalid Query. Missing \"at\" parameter");
     }
 
-    async execute(query)
+    async execute(query) 
     {
         this.validateQuery(query);
 
@@ -32,24 +32,37 @@ export class FileAdapter
         return this[type.toLowerCase()](query);
     }
 
-    add({ at, data })
+    add({ at, data }) 
     {
-        return this.acquire(at)
-            .then(collection => 
+        if (!Array.isArray(data)) data = [data];
+
+        return this.acquire(at).then(collection => 
+        {
+            let lastInsertedId;
+            data.forEach(item => 
             {
-                data.id = uuid();
-                collection.data.push(data);
-                
-                return this.persist(at, collection)
-                    .then(() => ({
-                        lastInsertedId: data.id,
-                        affectedRows: 0,
-                        changedRows: 0
-                    }));
+                item.id = lastInsertedId = uuid();
+                collection.data.push(item);
             });
+
+            return this.persist(at, collection).then(() => ({
+                lastInsertedId,
+                affectedRows: 0,
+                changedRows: 0
+            }));
+        });
     }
 
-    change({ at, data, filters })
+    list({ at, filters, limit, offset }) 
+    {
+        return this.acquire(at).then(collection =>
+            collection.data
+                .filter(this.parseFilters(filters))
+                .filter((item, index) => !offset || index >= offset)
+                .filter((item, index) => !limit || index < limit));
+    }
+
+    change({ at, data, filters }) 
     {
         let queryResponse = {
             lastInsertedId: null,
@@ -57,49 +70,84 @@ export class FileAdapter
             changedRows: 0
         };
 
-        return this.acquire(at)
-            .then(collection => 
-            {
-                collection.data = collection.data
-                    .filter(this.parseFilters(filters))
-                    .map(row => 
-                    {
-                        queryResponse.affectedRows++;
-                        let newRow = { ...row, ...data };
+        return this.acquire(at).then(collection => 
+        {
+            collection.data = collection.data
+                .filter(this.parseFilters(filters))
+                .map(row => 
+                {
+                    queryResponse.affectedRows++;
+                    let newRow = { ...row, ...data };
 
-                        if (!_.isEqual(row, newRow))
-                            queryResponse.changedRows++;
+                    if (!_.isEqual(row, newRow)) queryResponse.changedRows++;
 
-                        return newRow;
-                    });
+                    return newRow;
+                });
 
-                return this.persist(at, collection).then(() => queryResponse);
-            });
+            return this.persist(at, collection).then(() => queryResponse);
+        });
     }
 
-    drop({ at })
+    drop({ at }) 
     {
         return new Promise((resolve, reject) => 
         {
-            unlink(this.getCollectionPath(at), err => err ? reject(err) : resolve(true));
+            unlink(
+                this.getCollectionPath(at),
+                err => (err ? reject(err) : resolve(true))
+            );
         });
     }
 
-    parseFilters(filters)
+    parseFilters(filters) 
     {
-        if (!filters)
-            return () => true;
+        if (!filters) return () => true;
+
+        let criteria = new QueryCriteria();
+        return item => 
+        {
+            let response = true;
+            Object.keys(filters).forEach(key => 
+            {
+                if (!response) return null;
+
+                if (Array.isArray(filters[key])) 
+                {
+                    let [comp, value] = filters[key];
+                    return (response =
+                        response &&
+                        criteria[comp.toLowerCase()](item[key], value));
+                }
+
+                if (filters[key] && typeof filters[key] === "object")
+                    return Object.keys(filters[key]).forEach(comp =>
+                        (response =
+                                response &&
+                                criteria[comp.toLowerCase()](
+                                    item[key],
+                                    filters[key][comp]
+                                )));
+
+                response = criteria.eq(item[key], filters[key]);
+            });
+
+            return response;
+        };
     }
 
-    persist(at, collection)
+    persist(at, collection) 
     {
         return new Promise(resolve => 
         {
-            writeFile(this.getCollectionPath(at), JSON.stringify(collection, null, 4), () => resolve(true));
+            writeFile(
+                this.getCollectionPath(at),
+                JSON.stringify(collection, null, 4),
+                () => resolve(true)
+            );
         });
     }
 
-    acquire(at)
+    acquire(at) 
     {
         return new Promise(resolve => 
         {
@@ -107,17 +155,20 @@ export class FileAdapter
             {
                 if (!existsCollection)
                     return resolve(FileAdapter.buildCollection(at));
-                
-                readFile(this.getCollectionPath(at), { encoding: "utf8" }, (err, data) => resolve(JSON.parse(data)));
+
+                readFile(
+                    this.getCollectionPath(at),
+                    { encoding: "utf8" },
+                    (err, data) => resolve(JSON.parse(data))
+                );
             });
         });
     }
 
-    getCollectionPath(at)
+    getCollectionPath(at) 
     {
         return `${this.path}/${at}.json`;
     }
-
 }
 
 FileAdapter.buildCollection = (name, rules = {}) => 
