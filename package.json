@@ -40,8 +40,7 @@
         "precommit": "./node_modules/.bin/lint-staged",
         "lint": "eslint src/ test/ --fix",
         "build": "babel src -d lib",
-        "test":
-            "NODE_ENV=dev ./node_modules/.bin/nyc ./node_modules/mocha/bin/_mocha",
+        "test": "./node_modules/.bin/nyc ./node_modules/mocha/bin/_mocha",
         "travis-deploy-once": "travis-deploy-once",
         "semantic-release": "semantic-release"
     }
