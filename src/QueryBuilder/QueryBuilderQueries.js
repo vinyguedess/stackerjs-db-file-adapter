@@ -19,6 +19,7 @@ export class QueryBuilderQueries
     from(collection)
     {
         this.collection = collection;
+        return this;
     }
 
     set(fields, value)
