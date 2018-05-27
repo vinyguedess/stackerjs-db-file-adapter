@@ -34,6 +34,20 @@ describe("Test/Unit/ConnectionTest", () =>
                     }).to.throw(/Missing "at" parameter/))
                 .finally(done);
         });
+
+        it("Should present error when invalid query type", done =>
+        {
+            Connection.query({
+                type: "Adds",
+                at: "Anywhere",
+                data: { name: "any name" }
+            })
+                .catch(err => expect(() => 
+                {
+                    throw err;
+                }).to.throw())
+                .finally(done);
+        });
     });
 
     describe("Add", () => 
@@ -56,7 +70,7 @@ describe("Test/Unit/ConnectionTest", () =>
                     expect(queryResponse).to.have.property("changedRows");
                     USER_ID = queryResponse.lastInsertedId;
                 })
-                .finally(done);
+                .then(done);
         });
 
         it("Should insert multiple data into database", done => 
@@ -97,7 +111,7 @@ describe("Test/Unit/ConnectionTest", () =>
                     expect(queryResponse.affectedRows).to.be.a("number");
                     expect(queryResponse.changedRows).to.be.a("number");
                 })
-                .finally(done);
+                .then(done);
         });
     });
 
@@ -114,7 +128,7 @@ describe("Test/Unit/ConnectionTest", () =>
                     expect(results).to.be.an("Array");
                     expect(results).to.be.lengthOf(4);
                 })
-                .finally(done);
+                .then(done);
         });
 
         it("Should apply some filters", done => 
@@ -133,7 +147,7 @@ describe("Test/Unit/ConnectionTest", () =>
                     expect(results).to.be.an("Array");
                     expect(results).to.be.lengthOf(1);
                 })
-                .finally(done);
+                .then(done);
         });
 
         it("Should paginate results", done => 
@@ -149,7 +163,7 @@ describe("Test/Unit/ConnectionTest", () =>
                     expect(results).to.be.an("array");
                     expect(results).to.be.lengthOf(2);
                 })
-                .finally(done);
+                .then(done);
         });
     });
 
@@ -174,7 +188,7 @@ describe("Test/Unit/ConnectionTest", () =>
                     expect(queryResponse.affectedRows).to.be.equal(1);
                     expect(queryResponse.changedRows).to.be.equal(1);
                 })
-                .finally(done);
+                .then(done);
         });
 
         it("Should run update query but change nothing", done => 
@@ -192,7 +206,7 @@ describe("Test/Unit/ConnectionTest", () =>
                     expect(queryResponse.affectedRows).to.be.equal(1);
                     expect(queryResponse.changedRows).to.be.equal(0);
                 })
-                .finally(done);
+                .then(done);
         });
     });
 
@@ -212,7 +226,7 @@ describe("Test/Unit/ConnectionTest", () =>
                     expect(changedRows).to.be.equal(0);
                     expect(affectedRows).to.be.equal(1);
                 })
-                .finally(done);
+                .then(done);
         });
     });
 

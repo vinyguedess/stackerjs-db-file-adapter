@@ -2,72 +2,84 @@ export class QueryCriteria
 {
     like(field, value) 
     {
-        return field.includes(value);
+        return item => item[field].includes(value);
     }
 
     eq(field, value) 
     {
-        return field === value;
+        return item => item[field] === value;
     }
 
     neq(field, value) 
     {
-        return field !== value;
+        return item => item[field] !== value;
     }
 
     lt(field, value)
     {
-        return field < value;
+        return item => item[field] < value;
     }
 
     lte(field, value)
     {
-        return field <= value;
+        return item => item[field] <= value;
     }
 
     gt(field, value)
     {
-        return field > value;
+        return item => item[field] > value;
     }
 
     gte(field, value)
     {
-        return field >= value;
+        return item => item[field] >= value;
     }
 
-    // in(field, value)
-    // {
-    //     return this.intersectIn(field, value);
-    // }
+    in(field, value)
+    {
+        return item => value.includes(item[field]);
+    }
 
-    // notin(field, value)
-    // {
-    //     return this.intersectIn(field, value, true);
-    // }
+    notin(field, value)
+    {
+        return item => !value.includes(item[field]);
+    }
 
-    // andX()
-    // {
-    //     return `(${this.intersect(arguments, "AND")})`;
-    // }
+    andX()
+    {
+        return item =>
+        {
+            let response = true;
+            this.extractFunctions(arguments).forEach(filter => 
+            {
+                if (!response) return;
 
-    // orX()
-    // {
-    //     return `(${this.intersect(arguments, "OR")})`;
-    // }
+                response = filter(item);
+            });
 
-    // intersect(whatToInsersect, intersectWith)
-    // {
-    //     return Object.keys(whatToInsersect)
-    //         .map(key => whatToInsersect[key])
-    //         .join(` ${intersectWith.trim()} `);
-    // }
+            return response;
+        };
+    }
 
-    // intersectIn(field, value, not = false)
-    // {
-    //     if (Array.isArray(value))
-    //         value = `(${value.map(v => treatValue(v)).join(", ")})`;
-    //     if (typeof value === "object" && typeof value.parse === "function")
-    //         value = treatValue(value);
-    //     return `${parseFieldAndTable(field)} ${not ? "NOT" : ""} IN ${value}`;
-    // }
+    orX()
+    {
+        return item =>
+        {
+            let response = false;
+            this.extractFunctions(arguments).forEach(filter => 
+            {
+                if (response) return;
+
+                response = filter(item);
+            });
+
+            return response;
+        };
+    }
+
+    extractFunctions(filters)
+    {
+        return Object.keys(filters).map(key => filters[key]);
+    }
+
 }
