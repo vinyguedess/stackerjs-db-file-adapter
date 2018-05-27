@@ -126,6 +126,42 @@ describe("Test/Unit/QueryBuilderTest", () =>
                     .finally(done);
             });
         });
+
+        describe("Filtering results", () => 
+        {
+            it("Should filter by equal", done => 
+            {
+                new QueryBuilder()
+                    .select()
+                    .from("schedule_statuses")
+                    .where({ name: "Done" })
+                    .execute()
+                    .then(results => expect(results).to.be.lengthOf(1))
+                    .finally(done);
+            });
+
+            it("Should filter by Greather Than", done => 
+            {
+                new QueryBuilder()
+                    .select()
+                    .from("schedule_statuses")
+                    .where({ code: { gt: 2 } })
+                    .execute()
+                    .then(results => expect(results).to.be.lengthOf(1))
+                    .finally(done);
+            });
+
+            it("Should filter by Greater Than or Equal", done => 
+            {
+                new QueryBuilder()
+                    .select()
+                    .from("schedule_statuses")
+                    .where({ code: { gte: 2 } })
+                    .execute()
+                    .then(results => expect(results).to.be.lengthOf(2))
+                    .finally(done);
+            });
+        });
     });
 
     after(done => 

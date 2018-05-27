@@ -25,15 +25,15 @@ export class QueryCriteria
     //     return `${parseFieldAndTable(field)} <= ${treatValue(value)}`;
     // }
 
-    // gt(field, value)
-    // {
-    //     return `${parseFieldAndTable(field)} > ${treatValue(value)}`;
-    // }
+    gt(field, value)
+    {
+        return field > value;
+    }
 
-    // gte(field, value)
-    // {
-    //     return `${parseFieldAndTable(field)} >= ${treatValue(value)}`;
-    // }
+    gte(field, value)
+    {
+        return field >= value;
+    }
 
     // in(field, value)
     // {

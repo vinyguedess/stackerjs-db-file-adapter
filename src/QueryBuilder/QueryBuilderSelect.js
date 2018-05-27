@@ -39,6 +39,7 @@ export class QueryBuilderSelect extends QueryBuilderQueries
             type: "LIST",
             at: this.collection,
             fields: this.fields.length ? this.fields : null,
+            filters: this._where,
             limit: this._limit,
             offset: this._offset
         };

@@ -8,6 +8,7 @@ export class QueryBuilderQueries
     {
         this.collection;
         this.fields = {};
+        this.where;
     }
 
     into(collection)
@@ -30,6 +31,12 @@ export class QueryBuilderQueries
         else
             this.fields[fields] = value;
 
+        return this;
+    }
+
+    where(where)
+    {
+        this._where = where;
         return this;
     }
 
