@@ -36,6 +36,31 @@ describe("Test/Unit/QueryBuilderTest", () =>
 
     describe("SelectQueryBuilder", () => 
     {
+        before(done => 
+        {
+            Promise.all([
+                Connection.query({
+                    type: "ADD",
+                    at: "schedules",
+                    data: [
+                        { name: "Do something now", schedule: new Date(), with: [], status: 2 },
+                        { name: "My mom gave birth to me", schedule: "1992-12-30 08:25:00", with: [ "Mom", "Dad" ], status: 1 },
+                        { name: "Lost", schedule: "2016-07-20 23:00:00", with: [ "Relationship anniversary" ], status: 0 }
+                    ]
+                }),
+                Connection.query({
+                    type: "ADD",
+                    at: "schedule_statuses",
+                    data: [
+                        { name: "Forgot", code: 0 },
+                        { name: "Done", code: 1 },
+                        { name: "Rescheduled", code: 2 },
+                        { name: "Cancelled", code: 3 }
+                    ]
+                })
+            ]).finally(done);
+        });
+
         it("Should select data", done => 
         {
             new QueryBuilder()
@@ -53,12 +78,61 @@ describe("Test/Unit/QueryBuilderTest", () =>
                 })
                 .finally(done);
         });
+
+        describe("Limiting and offseting", () => 
+        {
+            it("Should limit results", done =>
+            {
+                new QueryBuilder()
+                    .select()
+                    .from("schedule_statuses")
+                    .limit(2)
+                    .execute()
+                    .then(results => 
+                    {
+                        expect(results).to.be.an("array");
+                        expect(results).to.be.lengthOf(2);
+                    })
+                    .finally(done);
+            });
+
+            it("Should offset results", done => 
+            {
+                new QueryBuilder()
+                    .select()
+                    .from("schedule_statuses")
+                    .offset(1)
+                    .execute()
+                    .then(results => 
+                    {
+                        expect(results).to.be.lengthOf(3);
+                    })
+                    .finally(done);
+            });
+
+            it("Should limit and offset", done => 
+            {
+                new QueryBuilder()
+                    .select()
+                    .from("schedule_statuses")
+                    .limit(2)
+                    .offset(1)
+                    .execute()
+                    .then(results => 
+                    {
+                        expect(results).to.be.lengthOf(2);
+                        expect(results[0].name).to.be.equal("Done");
+                    })
+                    .finally(done);
+            });
+        });
     });
 
     after(done => 
     {
         Promise.all([
-            Connection.query({ type: "DROP", at: "schedules" })
+            Connection.query({ type: "DROP", at: "schedules" }),
+            Connection.query({ type: "DROP", at: "schedule_statuses" })
         ]).finally(done);
     });
 

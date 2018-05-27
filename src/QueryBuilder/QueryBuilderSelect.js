@@ -8,6 +8,8 @@ export class QueryBuilderSelect extends QueryBuilderQueries
     {
         super();
         this.fields = [];
+        this._limit;
+        this._offset;
     }
 
     set()
@@ -19,15 +21,27 @@ export class QueryBuilderSelect extends QueryBuilderQueries
         return this;
     }
 
+    limit(limit)
+    {
+        this._limit = limit;
+        return this;
+    }
+
+    offset(offset)
+    {
+        this._offset = offset;
+        return this;
+    }
+
     parse()
     {
-        let query = {
+        return {
             type: "LIST",
             at: this.collection,
-            fields: this.fields
+            fields: this.fields.length ? this.fields : null,
+            limit: this._limit,
+            offset: this._offset
         };
-
-        return query;
     }
 
 }
