@@ -196,6 +196,26 @@ describe("Test/Unit/ConnectionTest", () =>
         });
     });
 
+    describe("Remove", () => 
+    {
+        it("Should delete using filters", done => 
+        {
+            Connection.query({
+                type: "REMOVE",
+                at: "phones",
+                filters: {
+                    ddd: "21"
+                }
+            })
+                .then(({ affectedRows, changedRows }) => 
+                {
+                    expect(changedRows).to.be.equal(0);
+                    expect(affectedRows).to.be.equal(1);
+                })
+                .finally(done);
+        });
+    });
+
     describe("Drop", () => 
     {
         it("Should drop selected collection", done => 

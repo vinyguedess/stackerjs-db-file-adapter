@@ -53,13 +53,26 @@ export class FileAdapter
         });
     }
 
-    list({ at, filters, limit, offset }) 
+    list({ at, filters, fields, limit, offset }) 
     {
+        if (!fields)
+            fields = "*";
+
         return this.acquire(at).then(collection =>
             collection.data
                 .filter(this.parseFilters(filters))
                 .filter((item, index) => !offset || index >= offset)
-                .filter((item, index) => !limit || index < limit));
+                .filter((item, index) => !limit || index < limit)
+                .map(item => 
+                {
+                    if (fields === "*") return item;
+
+                    let itemResolved = {};
+                    fields.forEach(field => 
+                        itemResolved[field] = typeof item[field] !== "undefined" ? item[field] : null);
+
+                    return itemResolved;
+                }));
     }
 
     change({ at, data, filters }) 
@@ -70,19 +83,39 @@ export class FileAdapter
             changedRows: 0
         };
 
+        let filter = this.parseFilters(filters);
         return this.acquire(at).then(collection => 
         {
-            collection.data = collection.data
-                .filter(this.parseFilters(filters))
-                .map(row => 
-                {
-                    queryResponse.affectedRows++;
-                    let newRow = { ...row, ...data };
+            collection.data = collection.data.map(item => 
+            {
+                if (!filter(item)) return item;
 
-                    if (!_.isEqual(row, newRow)) queryResponse.changedRows++;
+                queryResponse.affectedRows++;
+                let changedItem = { ...item, ...data };
 
-                    return newRow;
-                });
+                if (!_.isEqual(item, changedItem)) queryResponse.changedRows++;
+
+                return changedItem;
+            });
+
+            return this.persist(at, collection).then(() => queryResponse);
+        });
+    }
+
+    remove({ at, filters }) 
+    {
+        let queryResponse = { changedRows: 0, affectedRows: 0 },
+            filter = this.parseFilters(filters);
+
+        return this.acquire(at).then(collection => 
+        {
+            collection.data = collection.data.filter(item => 
+            {
+                if (!filter(item)) return true;
+
+                queryResponse.affectedRows++;
+                return false;
+            });
 
             return this.persist(at, collection).then(() => queryResponse);
         });
