@@ -275,6 +275,24 @@ describe("Test/Unit/QueryBuilderTest", () =>
         });
     });
 
+    describe("DeleteQueryBuilder", () => 
+    {
+        it("Should delete filtered results", done => 
+        {
+            new QueryBuilder()
+                .delete()
+                .from("schedule_statuses")
+                .where({ code: { gt: 1 } })
+                .execute()
+                .then(results => 
+                {
+                    expect(results.changedRows).to.be.equal(0);
+                    expect(results.affectedRows).to.be.equal(2);
+                })
+                .then(() => done());
+        });
+    });
+
     after(done => 
     {
         Promise.all([
