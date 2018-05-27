@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { QueryBuilder, Connection } from "./../../src";
+import { QueryBuilder, Connection, QueryCriteria } from "./../../src";
 
 
 describe("Test/Unit/QueryBuilderTest", () => 
@@ -30,7 +30,7 @@ describe("Test/Unit/QueryBuilderTest", () =>
                     expect(result.affectedRows).to.be.a("number").equals(0);
                     expect(result.changedRows).to.be.a("number").equals(0);
                 })
-                .finally(done);
+                .then(() => done());
         });
     });
 
@@ -58,7 +58,7 @@ describe("Test/Unit/QueryBuilderTest", () =>
                         { name: "Cancelled", code: 3 }
                     ]
                 })
-            ]).finally(done);
+            ]).then(() => done());
         });
 
         it("Should select data", done => 
@@ -76,7 +76,7 @@ describe("Test/Unit/QueryBuilderTest", () =>
                     expect(results[0].name).to.be.a("string");
                     expect(results[0].with_non_existent).to.be.null;
                 })
-                .finally(done);
+                .then(() => done());
         });
 
         describe("Limiting and offseting", () => 
@@ -93,7 +93,7 @@ describe("Test/Unit/QueryBuilderTest", () =>
                         expect(results).to.be.an("array");
                         expect(results).to.be.lengthOf(2);
                     })
-                    .finally(done);
+                    .then(() => done());
             });
 
             it("Should offset results", done => 
@@ -107,7 +107,7 @@ describe("Test/Unit/QueryBuilderTest", () =>
                     {
                         expect(results).to.be.lengthOf(3);
                     })
-                    .finally(done);
+                    .then(() => done());
             });
 
             it("Should limit and offset", done => 
@@ -123,7 +123,7 @@ describe("Test/Unit/QueryBuilderTest", () =>
                         expect(results).to.be.lengthOf(2);
                         expect(results[0].name).to.be.equal("Done");
                     })
-                    .finally(done);
+                    .then(() => done());
             });
         });
 
@@ -137,7 +137,7 @@ describe("Test/Unit/QueryBuilderTest", () =>
                     .where({ name: "Done" })
                     .execute()
                     .then(results => expect(results).to.be.lengthOf(1))
-                    .finally(done);
+                    .then(() => done());
             });
 
             it("Should filter by Greather Than", done => 
@@ -148,7 +148,7 @@ describe("Test/Unit/QueryBuilderTest", () =>
                     .where({ code: { gt: 2 } })
                     .execute()
                     .then(results => expect(results).to.be.lengthOf(1))
-                    .finally(done);
+                    .then(() => done());
             });
 
             it("Should filter by Greater Than or Equal", done => 
@@ -159,7 +159,7 @@ describe("Test/Unit/QueryBuilderTest", () =>
                     .where({ code: { gte: 2 } })
                     .execute()
                     .then(results => expect(results).to.be.lengthOf(2))
-                    .finally(done);
+                    .then(() => done());
             });
 
             it("Should filter by Lower Than", done => 
@@ -170,7 +170,7 @@ describe("Test/Unit/QueryBuilderTest", () =>
                     .where({ code: { lt: 3 } })
                     .execute()
                     .then(results => expect(results).to.be.lengthOf(3))
-                    .finally(done);
+                    .then(() => done());
             });
 
             it("Should filter by Lower Than or Equal", done => 
@@ -181,7 +181,7 @@ describe("Test/Unit/QueryBuilderTest", () =>
                     .where({ code: { lte: 3 } })
                     .execute()
                     .then(results => expect(results).to.be.lengthOf(4))
-                    .finally(done);
+                    .then(() => done());
             });
 
             it("Should filter by In", done => 
@@ -192,7 +192,7 @@ describe("Test/Unit/QueryBuilderTest", () =>
                     .where({ code: { in: [0, 2, 3] } })
                     .execute()
                     .then(results => expect(results).to.be.lengthOf(3))
-                    .finally(done);
+                    .then(() => done());
             });
 
             it("Should filter by Not In", done => 
@@ -203,7 +203,55 @@ describe("Test/Unit/QueryBuilderTest", () =>
                     .where({ code: { notin: [0, 1] } })
                     .execute()
                     .then(results => expect(results).to.be.lengthOf(2))
-                    .finally(done);
+                    .then(() => done());
+            });
+
+            it("Should concatenate And filters", done => 
+            {
+                let criteria = new QueryCriteria();
+                new QueryBuilder()
+                    .select()
+                    .from("schedule_statuses")
+                    .where(criteria.andX(
+                        criteria.eq("code", 1),
+                        criteria.eq("name", "Done")
+                    ))
+                    .execute()
+                    .then(results => expect(results).to.be.lengthOf(1))
+                    .then(() => done());
+            });
+
+            it("Should concatenate Or filters", done => 
+            {
+                let criteria = new QueryCriteria();
+                new QueryBuilder()
+                    .select()
+                    .from("schedule_statuses")
+                    .where(criteria.orX(
+                        criteria.eq("name", "Done"),
+                        criteria.eq("code", 0)
+                    ))
+                    .execute()
+                    .then(results => expect(results).to.be.lengthOf(2))
+                    .then(() => done());
+            });
+
+            it("Should concatenate And and Or filters", done => 
+            {
+                let criteria = new QueryCriteria();
+                new QueryBuilder()
+                    .select()
+                    .from("schedule_statuses")
+                    .where(criteria.andX(
+                        criteria.orX(
+                            criteria.eq("code", 1),
+                            criteria.eq("code", 2)
+                        ),
+                        criteria.eq("name", "Done")
+                    ))
+                    .execute()
+                    .then(results => expect(results).to.be.lengthOf(1))
+                    .then(() => done());
             });
         });
     });
@@ -213,7 +261,7 @@ describe("Test/Unit/QueryBuilderTest", () =>
         Promise.all([
             Connection.query({ type: "DROP", at: "schedules" }),
             Connection.query({ type: "DROP", at: "schedule_statuses" })
-        ]).finally(done);
+        ]).then(() => done());
     });
 
 });

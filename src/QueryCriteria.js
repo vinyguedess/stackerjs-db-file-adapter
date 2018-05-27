@@ -2,57 +2,84 @@ export class QueryCriteria
 {
     like(field, value) 
     {
-        return field.includes(value);
+        return item => item[field].includes(value);
     }
 
     eq(field, value) 
     {
-        return field === value;
+        return item => item[field] === value;
     }
 
     neq(field, value) 
     {
-        return field !== value;
+        return item => item[field] !== value;
     }
 
     lt(field, value)
     {
-        return field < value;
+        return item => item[field] < value;
     }
 
     lte(field, value)
     {
-        return field <= value;
+        return item => item[field] <= value;
     }
 
     gt(field, value)
     {
-        return field > value;
+        return item => item[field] > value;
     }
 
     gte(field, value)
     {
-        return field >= value;
+        return item => item[field] >= value;
     }
 
     in(field, value)
     {
-        return value.includes(field);
+        return item => value.includes(item[field]);
     }
 
     notin(field, value)
     {
-        return !value.includes(field);
+        return item => !value.includes(item[field]);
     }
 
-    // andX()
-    // {
-    //     return `(${this.intersect(arguments, "AND")})`;
-    // }
+    andX()
+    {
+        return item =>
+        {
+            let response = true;
+            this.extractFunctions(arguments).forEach(filter => 
+            {
+                if (!response) return;
 
-    // orX()
-    // {
-    //     return `(${this.intersect(arguments, "OR")})`;
-    // }
+                response = filter(item);
+            });
+
+            return response;
+        };
+    }
+
+    orX()
+    {
+        return item =>
+        {
+            let response = false;
+            this.extractFunctions(arguments).forEach(filter => 
+            {
+                if (response) return;
+
+                response = filter(item);
+            });
+
+            return response;
+        };
+    }
+
+    extractFunctions(filters)
+    {
+        return Object.keys(filters).map(key => filters[key]);
+    }
 
 }

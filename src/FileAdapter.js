@@ -136,6 +136,8 @@ export class FileAdapter
     {
         if (!filters) return () => true;
 
+        if (typeof filters === "function") return filters;
+
         let criteria = new QueryCriteria();
         return item => 
         {
@@ -149,7 +151,7 @@ export class FileAdapter
                     let [comp, value] = filters[key];
                     return (response =
                         response &&
-                        criteria[comp.toLowerCase()](item[key], value));
+                        criteria[comp.toLowerCase()](key, value)(item));
                 }
 
                 if (filters[key] && typeof filters[key] === "object")
@@ -157,11 +159,11 @@ export class FileAdapter
                         (response =
                                 response &&
                                 criteria[comp.toLowerCase()](
-                                    item[key],
+                                    key,
                                     filters[key][comp]
-                                )));
+                                )(item)));
 
-                response = criteria.eq(item[key], filters[key]);
+                response = criteria.eq(key, filters[key])(item);
             });
 
             return response;
