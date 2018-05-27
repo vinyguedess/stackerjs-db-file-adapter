@@ -161,6 +161,28 @@ describe("Test/Unit/QueryBuilderTest", () =>
                     .then(results => expect(results).to.be.lengthOf(2))
                     .finally(done);
             });
+
+            it("Should filter by Lower Than", done => 
+            {
+                new QueryBuilder()
+                    .select()
+                    .from("schedule_statuses")
+                    .where({ code: { lt: 3 } })
+                    .execute()
+                    .then(results => expect(results).to.be.lengthOf(3))
+                    .finally(done);
+            });
+
+            it("Should filter by Lower Than or Equal", done => 
+            {
+                new QueryBuilder()
+                    .select()
+                    .from("schedule_statuses")
+                    .where({ code: { lte: 3 } })
+                    .execute()
+                    .then(results => expect(results).to.be.lengthOf(4))
+                    .finally(done);
+            });
         });
     });
 
