@@ -5,17 +5,21 @@
 [![npm](https://img.shields.io/npm/dt/stackerjs-db-file-adapter.svg)](https://www.npmjs.com/package/stackerjs-db-file-adapter)
 
 # StackerJS DB: File Adapter
-
 An adapter for file system database.
 
 ## Installation
-
 ```bash
-    npm run build
+npm install --save stackerjs-db-file-adapter
 ```
 
-## Testing
+## Usage
+You need to create a config folder with a file called db.js, as follows:
+```javascript
+// config/db.js
 
-```bash
-    npm run test
+module.exports = {
+    host: "path/to/host",
+    name: "database_name"
+}
 ```
+Now you're set to write your queries.
