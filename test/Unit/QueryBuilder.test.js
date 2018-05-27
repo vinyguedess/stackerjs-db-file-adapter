@@ -183,6 +183,28 @@ describe("Test/Unit/QueryBuilderTest", () =>
                     .then(results => expect(results).to.be.lengthOf(4))
                     .finally(done);
             });
+
+            it("Should filter by In", done => 
+            {
+                new QueryBuilder()
+                    .select()
+                    .from("schedule_statuses")
+                    .where({ code: { in: [0, 2, 3] } })
+                    .execute()
+                    .then(results => expect(results).to.be.lengthOf(3))
+                    .finally(done);
+            });
+
+            it("Should filter by Not In", done => 
+            {
+                new QueryBuilder()
+                    .select()
+                    .from("schedule_statuses")
+                    .where({ code: { notin: [0, 1] } })
+                    .execute()
+                    .then(results => expect(results).to.be.lengthOf(2))
+                    .finally(done);
+            });
         });
     });
 
