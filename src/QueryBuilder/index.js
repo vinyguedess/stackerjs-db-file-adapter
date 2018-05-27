@@ -1,5 +1,6 @@
 import { QueryBuilderInsert } from "./QueryBuilderInsert";
 import { QueryBuilderSelect } from "./QueryBuilderSelect";
+import { QueryBuilderUpdate } from "./QueryBuilderUpdate";
 
 
 export class QueryBuilder 
@@ -13,6 +14,11 @@ export class QueryBuilder
     select()
     {
         return new QueryBuilderSelect();
+    }
+
+    update()
+    {
+        return new QueryBuilderUpdate();
     }
 
 }

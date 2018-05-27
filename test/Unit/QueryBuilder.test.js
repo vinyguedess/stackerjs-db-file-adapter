@@ -256,6 +256,25 @@ describe("Test/Unit/QueryBuilderTest", () =>
         });
     });
 
+    describe("UpdateQueryBuilder", () => 
+    {
+        it("Should update filtered results", done => 
+        {
+            new QueryBuilder()
+                .update()
+                .set({ name: "Doned" })
+                .into("schedule_statuses")
+                .where({ name:  "Done" })
+                .execute()
+                .then(response => 
+                {
+                    expect(response.affectedRows).to.be.equal(1);
+                    expect(response.changedRows).to.be.equal(1);
+                })
+                .then(() => done());
+        });
+    });
+
     after(done => 
     {
         Promise.all([
