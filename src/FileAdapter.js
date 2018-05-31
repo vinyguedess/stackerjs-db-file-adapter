@@ -59,20 +59,15 @@ export class FileAdapter
             fields = "*";
 
         return this.acquire(at).then(collection =>
-            collection.data
-                .filter(this.parseFilters(filters))
-                .filter((item, index) => !offset || index >= offset)
-                .filter((item, index) => !limit || index < limit)
-                .map(item => 
-                {
-                    if (fields === "*") return item;
+        {
+            let results = _.filter(collection.data, this.parseFilters(filters));
 
-                    let itemResolved = {};
-                    fields.forEach(field => 
-                        itemResolved[field] = typeof item[field] !== "undefined" ? item[field] : null);
+            if (offset) results = _.drop(results, offset);
 
-                    return itemResolved;
-                }));
+            if (limit) results = _.take(results, limit);
+
+            return results;
+        });
     }
 
     change({ at, data, filters }) 

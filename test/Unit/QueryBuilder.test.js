@@ -74,7 +74,7 @@ describe("Test/Unit/QueryBuilderTest", () =>
                     expect(results.length).to.be.at.least(1);
                     expect(results[0].id).to.be.a("string");
                     expect(results[0].name).to.be.a("string");
-                    expect(results[0].with_non_existent).to.be.null;
+                    expect(results[0].with_non_existent).to.be.undefined;
                 })
                 .then(() => done());
         });
