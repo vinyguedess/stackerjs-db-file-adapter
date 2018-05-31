@@ -53,7 +53,7 @@ export class FileAdapter
         });
     }
 
-    list({ at, filters, fields, limit, offset }) 
+    list({ at, fields, filters, order, limit, offset }) 
     {
         if (!fields)
             fields = "*";
@@ -61,6 +61,8 @@ export class FileAdapter
         return this.acquire(at).then(collection =>
         {
             let results = _.filter(collection.data, this.parseFilters(filters));
+
+            if (Array.isArray(order)) results = _.orderBy(results, order[0], order[1]);
 
             if (offset) results = _.drop(results, offset);
 

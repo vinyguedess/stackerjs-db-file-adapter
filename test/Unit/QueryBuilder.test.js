@@ -254,6 +254,22 @@ describe("Test/Unit/QueryBuilderTest", () =>
                     .then(() => done());
             });
         });
+
+        describe("Ordering results", () => 
+        {
+            it("Should order a list without trouble", done => 
+            {
+                new QueryBuilder().select()
+                    .from("schedules")
+                    .order("name", ["status", "desc"])
+                    .execute()
+                    .then(results => 
+                    {
+                        console.log(results);
+                    })
+                    .finally(done);
+            });
+        });
     });
 
     describe("UpdateQueryBuilder", () => 
