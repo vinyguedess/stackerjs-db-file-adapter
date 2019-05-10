@@ -74,7 +74,7 @@ describe("Test/Unit/QueryBuilderTest", () =>
                     expect(results.length).to.be.at.least(1);
                     expect(results[0].id).to.be.a("string");
                     expect(results[0].name).to.be.a("string");
-                    expect(results[0].with_non_existent).to.be.null;
+                    expect(results[0].with_non_existent).to.be.undefined;
                 })
                 .then(() => done());
         });
@@ -252,6 +252,22 @@ describe("Test/Unit/QueryBuilderTest", () =>
                     .execute()
                     .then(results => expect(results).to.be.lengthOf(1))
                     .then(() => done());
+            });
+        });
+
+        describe("Ordering results", () => 
+        {
+            it("Should order a list without trouble", done => 
+            {
+                new QueryBuilder().select()
+                    .from("schedules")
+                    .order("name", ["status", "desc"])
+                    .execute()
+                    .then(results => 
+                    {
+                        console.log(results);
+                    })
+                    .finally(done);
             });
         });
     });

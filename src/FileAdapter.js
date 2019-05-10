@@ -53,26 +53,23 @@ export class FileAdapter
         });
     }
 
-    list({ at, filters, fields, limit, offset }) 
+    list({ at, fields, filters, order, limit, offset }) 
     {
         if (!fields)
             fields = "*";
 
         return this.acquire(at).then(collection =>
-            collection.data
-                .filter(this.parseFilters(filters))
-                .filter((item, index) => !offset || index >= offset)
-                .filter((item, index) => !limit || index < limit)
-                .map(item => 
-                {
-                    if (fields === "*") return item;
+        {
+            let results = _.filter(collection.data, this.parseFilters(filters));
 
-                    let itemResolved = {};
-                    fields.forEach(field => 
-                        itemResolved[field] = typeof item[field] !== "undefined" ? item[field] : null);
+            if (Array.isArray(order)) results = _.orderBy(results, order[0], order[1]);
 
-                    return itemResolved;
-                }));
+            if (offset) results = _.drop(results, offset);
+
+            if (limit) results = _.take(results, limit);
+
+            return results;
+        });
     }
 
     change({ at, data, filters }) 
